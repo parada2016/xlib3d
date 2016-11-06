@@ -13,7 +13,7 @@ XWindowAttributes xwatt;
 int XRes,YRes,MaxX,MaxY,MinX,MinY;
 #define TRUE (1==1)
 
-
+// rgb to long routine
 unsigned long rgb2long(unsigned long r, unsigned long g, unsigned long b)
 {
     return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
@@ -35,7 +35,7 @@ int nFaces;
 }SphereMesh;
 typedef struct { Ponto3D ox; Ponto3D oy; Ponto3D oz; }View;
 
-
+// allocate a sphere mesh
 int AlocarEsfera(float raio, int  longitude, SphereMesh * sphere) {
     int ntFaces;
 int nVertices;
@@ -127,11 +127,7 @@ count = 0;
 
 }
 
-
-
-
-
-
+// Converte converts Point3D to XPoint before drawing triangles
 XPoint Converte(Ponto3D p)
 {
     XPoint pp={
@@ -150,20 +146,17 @@ void triangle(Ponto3D * vert)
     XFillPolygon(dis,win,gcontext, tr, 3, Nonconvex,CoordModeOrigin);
 }
 
-void putpixel(int x, int y)
-{
-  XDrawPoint(dis,win,gcontext,x,y);
-}
 
 double VecDot(Ponto3D A, Ponto3D B)
 {
     return(A.x * B.x + A.y*B.y + A.z*B.z);
 }
-
+// default camera
 const View DefCam={ { 0.97,-0.02,0.24 },
                     {-0.046,0.97,0.25},
                     {-0.24,-0.25,0.94}
                    };
+// camera used to rotate de sphere
 static View Cam={   { 0.97,-0.02,0.24 },
                     {-0.046,0.97,0.25},
                     {-0.24,-0.25,0.94}
@@ -171,7 +164,7 @@ static View Cam={   { 0.97,-0.02,0.24 },
 
 
 static double SinX, SinY, CosX, CosY, SinZ, CosZ;
-
+// change camera position
 void  SetCam(double ax,double ay, double az){
 SinX = sin(ax);  SinY = sin(ay);  SinZ = sin(az);
 CosX = cos(ax);  CosY = cos(ay);  CosZ = cos(az);
@@ -196,7 +189,7 @@ Ponto3D out;
  out.z = VecDot(in,cam.oz) + dist;
  return(out);
 }
-
+// project an array of 3D vertices onto 2D screen
 void ProjetaVert(Ponto3D * prj, Ponto3D vert[], int n, double escala)
 {
  Ponto3D p;
@@ -239,7 +232,7 @@ double VecLen(Ponto3D A){
 }
 
 
-
+// shadows a face
 double Sombra(Ponto3D VNormal){
   double dir,l=1,len,Cos;
      Ponto3D light = { 30,30,-30};
@@ -262,7 +255,7 @@ return(l);
 
 
 
-
+// calculate the normal of a face
 Ponto3D NormalDaFace(Ponto3D pts[])
 {
    Ponto3D N,V1,V2;
@@ -272,9 +265,9 @@ Ponto3D NormalDaFace(Ponto3D pts[])
      return(N);
 
 }
-
+// tr: array to hold projected points
 static Ponto3D * tr;
-
+// draw the sphere
 void DrawSphereMesh(SphereMesh sphere)
 {
     Ponto3D points[3];
@@ -298,31 +291,29 @@ void DrawSphereMesh(SphereMesh sphere)
 
 }
 
-
+// sphere mesh struct
 SphereMesh sphere;
 
 void closegraph()
 {
-
    XCloseDisplay(dis);
      free(sphere.FaceArr);
      free(sphere.VertArr);
      free(tr);
      printf("Bye bye...");
-
 }
 
 
 int main()
 {
-
-
-    XRes = 640;
-    YRes = 480;
+    XRes = 640;  // horizontal resolution
+    YRes = 480;  // vertical resolution
     int Raio = (int)(2.2*(double)(YRes-20)/7.0);
-    int nTriangulos = 32;
-    int canto;
+    int nTriangulos = 32;  // number of triangles
+    int canto;  // corner to draw a background rectangle
+    // message: use arrow keys to rotate the sphere
     char msg[]="Use as teclas de seta para girar a esfera";
+    // initial rotation angle value
     double angulo = 0;
     if(AlocarEsfera(Raio,nTriangulos,&sphere)){
 
