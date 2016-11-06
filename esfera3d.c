@@ -213,91 +213,8 @@ void ProjetaVert(Ponto3D * prj, Ponto3D vert[], int n, double escala)
    prj[i] = p;
  }
 }
-typedef int face[3];
-static Ponto3D * Vertices;
-static face * Faces;
-int ntFaces;
-int nVertices;
-
-void CalcEsfera (int  longitude,int latitude) {
-  ntFaces = longitude + 2 * (latitude - 2)*longitude;
-  nVertices = (longitude - 2)*latitude + 2;
-
-}
-
-// esfera
-void CriarEsfera (Ponto3D centro,  float raio, int  longitude,int latitude) {
-  int i,j,j2, s1, s2;
-  float r2,y2, angle;
-  Ponto3D p;
-  float PiOver180 = M_PI/180.0;
-  int count=0;
 
 
-    for (i = 1; i < latitude; i++) {
-         r2 = raio * sin((180 * (double)i / latitude)*PiOver180);
-         y2 = centro.y - raio * cos((180 * (double)i / latitude *PiOver180));
-
-        for (j = 0; j < longitude; j++) {
-            angle = 360*((double)j + (double)i/2.0) / latitude;
-            p.x = centro.x + r2 * cos(angle * PiOver180);
-            p.y = y2;
-            p.z = centro.z + r2 * sin(angle *PiOver180);
-            Vertices[count++]  = p;
-
-        }
-    }
-    // Polos
-   p.x = centro.x;
-   p.y = centro.y - raio;
-   p.z = centro.z;
-   Vertices[count++] = p;
-
-
-   p.x = centro.x;
-   p.y = centro.y + raio;
-   p.z = centro.z;
-  Vertices[count] = p;
-
-
-//n = nVertices;
-count = 0;
-   // Faces polares
-    for (j = 0; j < longitude; j++) {
-         j2 = (j + 1) % longitude;
-
-         Faces[count][0] = j2;
-         Faces[count][1] = j;
-         Faces[count][2] = nVertices-2;
-         count++;
-         Faces[count][0] = nVertices-3-j2;
-         Faces[count][1] = nVertices-3-j;
-         Faces[count][2] = nVertices-1;
-         count++;
-
-    }
-
-     // Outras faces
-    for (i = 1; i < latitude - 1; i++) {
-
-        for (j = 0; j < longitude; j++) {
-             s1 = (i - 1) * longitude;
-             s2 = i * longitude;
-             j2 = (j + 1) % longitude;
-             Faces[count][0] = s1 + j;
-             Faces[count][1] = s1 + j2;
-             Faces[count][2] = s2 + j;
-             count++;
-
-             Faces[count][0] = s1 + j2;
-             Faces[count][1] = s2 + j2;
-             Faces[count][2] = s2 + j;
-             count++;
-
-        }
-    }
-
-}
 
 Ponto3D VecSub(Ponto3D A, Ponto3D B){
 Ponto3D r={
@@ -381,12 +298,15 @@ void DrawSphereMesh(SphereMesh sphere)
 
 }
 
+
+SphereMesh sphere;
+
 void closegraph()
 {
 
    XCloseDisplay(dis);
-    free(Vertices);
-    free(Faces);
+     free(sphere.FaceArr);
+     free(sphere.VertArr);
      free(tr);
      printf("Bye bye...");
 
@@ -395,11 +315,11 @@ void closegraph()
 
 int main()
 {
-    SphereMesh sphere;
+
 
     XRes = 640;
     YRes = 480;
-    int Raio = 150;
+    int Raio = (int)(2.2*(double)(YRes-20)/7.0);
     int nTriangulos = 32;
     int canto;
     char msg[]="Use as teclas de seta para girar a esfera";
@@ -467,7 +387,7 @@ int main()
 
                 }
             case Expose:
-                  XDrawString(dis,win,gcontext,22,22,msg,strlen(msg));
+                  XDrawString(dis,win,gcontext,20,20,msg,strlen(msg));
                   XSetForeground(dis,gcontext,0);
                   canto = Raio * sqrt(2);
                   XFillRectangle(dis,win,gcontext,XRes/2 - canto,YRes/2 - canto,2*canto,2*canto);
